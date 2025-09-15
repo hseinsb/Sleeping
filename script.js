@@ -11,15 +11,29 @@ class SleepCycleCalculator {
         const workMode = document.getElementById('workMode');
         const mustWakeBy = document.getElementById('mustWakeBy');
 
-        calculateBtn.addEventListener('click', () => this.calculateSleepCycles());
+        calculateBtn.addEventListener('click', () => {
+            calculateBtn.classList.add('loading');
+            calculateBtn.textContent = 'Calculating...';
+            setTimeout(() => {
+                this.calculateSleepCycles();
+                calculateBtn.classList.remove('loading');
+                calculateBtn.textContent = 'Calculate Optimal Wake Times';
+            }, 300);
+        });
         
         cycleLength.addEventListener('input', (e) => {
             cycleValue.textContent = e.target.value;
         });
 
-        // Fajr mode toggle
+        // Fajr mode toggle with visual feedback
         document.querySelectorAll('input[name="fajrMode"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
+                // Update visual selection state
+                document.querySelectorAll('.ios-radio-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                e.target.closest('.ios-radio-item').classList.add('selected');
+                
                 this.toggleFajrSections(e.target.value);
                 this.calculateSleepCycles();
             });
@@ -45,20 +59,30 @@ class SleepCycleCalculator {
         document.getElementById('fajrEnd').addEventListener('change', () => this.calculateSleepCycles());
         document.getElementById('workTime').addEventListener('change', () => this.calculateSleepCycles());
         mustWakeBy.addEventListener('change', () => this.calculateSleepCycles());
+        
+        // Initialize radio button selection state
+        const selectedRadio = document.querySelector('input[name="fajrMode"]:checked');
+        if (selectedRadio) {
+            selectedRadio.closest('.ios-radio-item').classList.add('selected');
+        }
     }
 
     toggleFajrSections(mode) {
         const fixedSection = document.getElementById('fixedFajrSection');
         const windowSection = document.getElementById('fajrWindowSection');
         
+        // Hide all sections with smooth transition
         fixedSection.classList.add('hidden');
         windowSection.classList.add('hidden');
         
-        if (mode === 'fixed') {
-            fixedSection.classList.remove('hidden');
-        } else if (mode === 'window') {
-            windowSection.classList.remove('hidden');
-        }
+        // Show relevant section with delay for smooth transition
+        setTimeout(() => {
+            if (mode === 'fixed') {
+                fixedSection.classList.remove('hidden');
+            } else if (mode === 'window') {
+                windowSection.classList.remove('hidden');
+            }
+        }, 100);
     }
 
     parseTimeString(timeString) {
@@ -1321,8 +1345,11 @@ class SleepCycleCalculator {
         const fajrAnalysisDiv = document.getElementById('fajrAnalysis');
         const fajrContentDiv = document.getElementById('fajrContent');
 
-        // Show results
+        // Show results with iOS animation
         resultsDiv.classList.remove('hidden');
+        setTimeout(() => {
+            resultsDiv.classList.add('show');
+        }, 50);
 
         // NEW: Intersection Analysis Display (takes priority over old optimization)
         const fajrOptimizationDiv = document.getElementById('fajrOptimization');
@@ -1345,44 +1372,40 @@ class SleepCycleCalculator {
                 fajrAnalysisDiv.classList.remove('hidden');
                 
                 const timingClass = {
-                    best: 'text-sleep-best',
-                    okay: 'text-sleep-okay',
-                    worst: 'text-sleep-worst'
+                    best: 'status-best',
+                    okay: 'status-okay',
+                    worst: 'status-worst'
                 }[fajrAnalysis.timing];
 
                 fajrContentDiv.innerHTML = `
-                    <div class="mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium">Fajr Time:</span> 
-                            <span class="text-sm font-mono bg-gray-100 px-2 py-1 rounded">${this.formatTime(fajr)}</span>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                            <span style="font-weight: 500;">Fajr Time:</span> 
+                            <span style="font-size: var(--font-size-subhead); font-family: monospace; background-color: var(--bg-secondary); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--border-radius-small);">${this.formatTime(fajr)}</span>
                         </div>
-                        <div class="text-sm text-gray-600">${fajrAnalysis.exactTiming}</div>
+                        <div style="font-size: var(--font-size-subhead); color: var(--text-secondary);">${fajrAnalysis.exactTiming}</div>
                     </div>
                     
-                    <div class="mb-4 p-3 rounded-lg ${
-                        fajrAnalysis.timing === 'best' ? 'bg-green-50 border border-green-200' :
-                        fajrAnalysis.timing === 'okay' ? 'bg-yellow-50 border border-yellow-200' :
-                        'bg-red-50 border border-red-200'
-                    }">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium">Sleep Stage:</span> 
-                            <span class="${timingClass} font-medium text-sm px-2 py-1 rounded">${fajrAnalysis.stage}</span>
+                    <div class="${timingClass}" style="padding: var(--spacing-md); border-radius: var(--border-radius-medium); margin-bottom: var(--spacing-md);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                            <span style="font-weight: 500;">Sleep Stage:</span> 
+                            <span style="font-weight: 600; font-size: var(--font-size-subhead); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--border-radius-small); background-color: rgba(255,255,255,0.3);">${fajrAnalysis.stage}</span>
                         </div>
-                        <div class="text-sm">
+                        <div style="font-size: var(--font-size-subhead);">
                             <strong>Quality:</strong> ${fajrAnalysis.quality ? fajrAnalysis.quality.toUpperCase() : 'N/A'}
                         </div>
                     </div>
                     
-                    <div class="mb-3">${fajrAnalysis.recommendation}</div>
+                    <div style="margin-bottom: var(--spacing-md); font-size: var(--font-size-body);">${fajrAnalysis.recommendation}</div>
                     
                     ${fajrAnalysis.nextBestTime && fajrAnalysis.timing === 'worst' ? 
-                        `<div class="text-sm bg-blue-50 border border-blue-200 p-3 rounded">
+                        `<div style="font-size: var(--font-size-subhead); background-color: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--border-radius-medium); margin-bottom: var(--spacing-md);">
                             💡 <strong>Post-Fajr Strategy:</strong> If you go back to sleep after Fajr, aim to wake up around ${fajrAnalysis.nextBestTime} to complete the cycle properly.
                         </div>` : ''
                     }
                     
                     ${fajrAnalysis.timing === 'worst' ? 
-                        `<div class="text-sm bg-orange-50 border border-orange-200 p-3 rounded mt-3">
+                        `<div style="font-size: var(--font-size-subhead); background-color: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--border-radius-medium);">
                             ⚠️ <strong>Alternative:</strong> Consider staying awake after Fajr prayer to avoid cycle interruption grogginess.
                         </div>` : ''
                     }
@@ -1394,6 +1417,9 @@ class SleepCycleCalculator {
 
         // Clear previous timeline
         timelineDiv.innerHTML = '';
+        
+        // Add view toggle
+        this.addViewToggle(timelineDiv);
 
         // Handle work mode
         let workModeRecommendation = null;
@@ -1411,153 +1437,134 @@ class SleepCycleCalculator {
         // Add work mode notification
         if (workModeRecommendation) {
             const workModeDiv = document.createElement('div');
-            workModeDiv.className = 'bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4';
+            workModeDiv.style.cssText = 'background-color: var(--ios-blue-soft, var(--bg-secondary)); border: 1px solid var(--ios-blue); border-radius: var(--border-radius-medium); padding: var(--spacing-md); margin-bottom: var(--spacing-md);';
             workModeDiv.innerHTML = `
-                <h4 class="font-medium text-blue-800 mb-2">⏰ Work Mode Recommendation</h4>
-                <p class="text-blue-700">${workModeRecommendation}</p>
+                <h4 style="font-weight: 600; color: var(--ios-blue); margin-bottom: var(--spacing-sm); font-size: var(--font-size-callout);">⏰ Work Mode Recommendation</h4>
+                <p style="color: var(--text-primary); font-size: var(--font-size-subhead); margin: 0;">${workModeRecommendation}</p>
             `;
             timelineDiv.appendChild(workModeDiv);
         }
 
-        // Group by cycles for better display
-        const cycleGroups = {};
-        allWindows.forEach(window => {
-            if (!cycleGroups[window.cycle]) {
-                cycleGroups[window.cycle] = [];
-            }
-            cycleGroups[window.cycle].push(window);
-        });
+        // NEW UX FLOW: 1. Sticky constraints 2. Toggle 3. Detailed cycles
+        this.renderStickyConstraints(timelineDiv);
+        this.addViewToggle(timelineDiv);
+        
+        // Store current view preference
+        const currentView = timelineDiv.dataset.currentView || 'accordion';
+        
+        // Create detailed cycles section
+        const detailedSection = document.createElement('div');
+        detailedSection.className = 'detailed-cycles-section';
+        detailedSection.innerHTML = '<h3 class="detailed-cycles-header">Detailed Sleep Cycles</h3>';
+        
+        if (currentView === 'accordion') {
+            this.renderAccordionView(detailedSection, allWindows, cycles);
+        } else {
+            this.renderCarouselView(detailedSection, allWindows, cycles);
+        }
+        
+        timelineDiv.appendChild(detailedSection);
 
-        Object.keys(cycleGroups).forEach(cycleNum => {
-            const cycleDiv = document.createElement('div');
-            cycleDiv.className = 'border-l-4 border-gray-300 pl-4 mb-6';
-            
-            // Cycle header with timing
-            const cycleHeader = document.createElement('div');
-            cycleHeader.className = 'flex items-center justify-between mb-3';
-            cycleHeader.innerHTML = `
-                <h4 class="font-medium text-gray-800">Sleep Cycle ${cycleNum}</h4>
-                <span class="text-xs text-gray-500">${cycles[cycleNum - 1] ? `${this.formatTime(cycles[cycleNum - 1].start)} - ${this.formatTime(cycles[cycleNum - 1].end)}` : ''}</span>
-            `;
-            cycleDiv.appendChild(cycleHeader);
-
-            // Sort windows by start time for this cycle
-            const sortedWindows = cycleGroups[cycleNum].sort((a, b) => a.start - b.start);
-
-            // Create windows container
-            const windowsContainer = document.createElement('div');
-            windowsContainer.className = 'space-y-2';
-
-            sortedWindows.forEach(window => {
-                const colorClass = {
-                    best: 'bg-sleep-best text-white border-l-4 border-green-700',
-                    okay: 'bg-sleep-okay text-white border-l-4 border-yellow-700',
-                    worst: 'bg-sleep-worst text-white border-l-4 border-red-700'
-                }[window.type];
-
-                const icon = {
-                    best: '✅',
-                    okay: '⚠️',
-                    worst: '❌'
-                }[window.type];
-
-                const durationMinutes = Math.round((window.end - window.start) / (1000 * 60));
-                
-                const windowDiv = document.createElement('div');
-                windowDiv.className = `${colorClass} px-4 py-3 rounded-md text-sm`;
-                windowDiv.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="font-medium">${icon} ${this.formatTime(window.start)} - ${this.formatTime(window.end)}</span>
-                            <span class="text-xs opacity-80 ml-2">(${durationMinutes} min window)</span>
-                        </div>
-                        <div class="text-xs opacity-90 uppercase font-medium">
-                            ${window.quality || 'STANDARD'}
-                        </div>
-                    </div>
-                    <div class="text-xs opacity-90 mt-1">${window.reason}</div>
-                    ${window.stage ? `<div class="text-xs opacity-75 mt-1">Stage: ${window.stage.replace('_', ' ').toUpperCase()}</div>` : ''}
-                `;
-                
-                windowsContainer.appendChild(windowDiv);
-            });
-
-            cycleDiv.appendChild(windowsContainer);
-            timelineDiv.appendChild(cycleDiv);
-        });
 
         // Add realism warning if needed
         this.addRealismWarning(timelineDiv, windows, fajr, workMode, mustWakeBy, fajrOptimization, intersectionAnalysis);
-
-        // Create visualization
-        this.createVisualization(cycles, windows, fajr);
     }
 
     addRealismWarning(timelineDiv, windows, fajr, workMode, mustWakeBy, fajrOptimization, intersectionAnalysis) {
-        let warningMessage = null;
-        let warningType = 'info';
+        const alerts = [];
 
         // Check intersection analysis first (more accurate)
         if (intersectionAnalysis) {
             if (intersectionAnalysis.analysis.status === 'no_intersections') {
-                warningMessage = '🚨 <strong>Schedule Reality Check:</strong> No wake-up windows satisfy both Fajr and work constraints. You need to adjust your bedtime or work schedule.';
-                warningType = 'critical';
+                alerts.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'Schedule Reality Check',
+                    message: 'No wake-up windows satisfy both Fajr and work constraints.',
+                    tip: 'Adjust your bedtime earlier or modify your work schedule.'
+                });
             } else if (intersectionAnalysis.analysis.status === 'no_viable') {
-                warningMessage = '🚨 <strong>Schedule Reality Check:</strong> All Fajr+work intersections create conflicts or insufficient rest. This schedule will cause fatigue.';
-                warningType = 'critical';
+                alerts.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'Schedule Conflict',
+                    message: 'All Fajr+work intersections create conflicts or insufficient rest.',
+                    tip: 'This schedule will cause fatigue - consider sleeping earlier.'
+                });
             } else if (intersectionAnalysis.totalSleepTime < 6) {
-                warningMessage = '⚠️ <strong>Insufficient Sleep Warning:</strong> This schedule provides less than 6 hours of sleep. You will feel tired regardless of cycle timing.';
-                warningType = 'warning';
+                alerts.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'Insufficient Sleep Warning',
+                    message: 'This schedule provides less than 6 hours of sleep.',
+                    tip: 'You will feel tired regardless of cycle timing - sleep earlier.'
+                });
             } else if (intersectionAnalysis.analysis.bestOptions === 0) {
-                warningMessage = 'ℹ️ <strong>Notice:</strong> No perfect REM completion options available. This is your fault for not sleeping earlier.';
-                warningType = 'info';
+                alerts.push({
+                    type: 'info',
+                    icon: 'ℹ️',
+                    title: 'No Perfect Options',
+                    message: 'No perfect REM completion options available.',
+                    tip: 'Consider sleeping earlier for better cycle completion.'
+                });
             }
         }
         // Fallback to old optimization logic
         else if (fajrOptimization && !fajrOptimization.hasViableOption) {
-            warningMessage = '🚨 <strong>Schedule Reality Check:</strong> All Fajr options lead to cycle interruption at work time. You will feel groggy regardless of when you wake for Fajr.';
-            warningType = 'critical';
+            alerts.push({
+                type: 'warning',
+                icon: '⚠️',
+                title: 'Schedule Reality Check',
+                message: 'All Fajr options lead to cycle interruption at work time.',
+                tip: 'You will feel groggy regardless of when you wake for Fajr.'
+            });
         }
         // Check for insufficient sleep time
         else if (fajrOptimization && fajrOptimization.totalSleepTime < 6) {
-            warningMessage = '⚠️ <strong>Insufficient Sleep Warning:</strong> Your schedule provides less than 6 hours of sleep. Consider going to bed earlier for better health and alertness.';
-            warningType = 'warning';
+            alerts.push({
+                type: 'warning',
+                icon: '⚠️',
+                title: 'Insufficient Sleep Warning',
+                message: 'Your schedule provides less than 6 hours of sleep.',
+                tip: 'Consider going to bed earlier for better health and alertness.'
+            });
         }
         // Check for work mode conflicts
         else if (workMode && mustWakeBy) {
             const viableOptions = windows.best.filter(w => w.end <= mustWakeBy).length + 
                                 windows.okay.filter(w => w.end <= mustWakeBy).length;
             if (viableOptions === 0) {
-                warningMessage = '❌ <strong>Work Schedule Conflict:</strong> No good wake-up windows exist before your work deadline. You may need to adjust your bedtime or work start time.';
-                warningType = 'critical';
+                alerts.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'Work Schedule Conflict',
+                    message: 'No good wake-up windows exist before your work deadline.',
+                    tip: 'Adjust your bedtime or work start time.'
+                });
             }
         }
 
-        if (warningMessage) {
-            const warningDiv = document.createElement('div');
-            const bgClass = {
-                critical: 'bg-red-50 border-red-200 text-red-800',
-                warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                info: 'bg-blue-50 border-blue-200 text-blue-800'
-            }[warningType];
-            
-            warningDiv.className = `${bgClass} border rounded-lg p-4 mb-6`;
-            warningDiv.innerHTML = `
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 mr-3 mt-1">
-                        ${warningType === 'critical' ? '🚨' : warningType === 'warning' ? '⚠️' : 'ℹ️'}
-                    </div>
-                    <div class="text-sm">
-                        ${warningMessage}
-                        <div class="mt-2 text-xs opacity-80">
-                            💡 Consider: Earlier bedtime, staying awake after Fajr, or adjusting work schedule if possible.
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            timelineDiv.insertBefore(warningDiv, timelineDiv.firstChild);
-        }
+        // Render alert cards
+        alerts.forEach(alert => {
+            const alertCard = this.createAlertCard(alert);
+            timelineDiv.insertBefore(alertCard, timelineDiv.firstChild);
+        });
+    }
+
+    createAlertCard(alert) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-card ${alert.type}`;
+        
+        alertDiv.innerHTML = `
+            <div class="alert-icon">${alert.icon}</div>
+            <div class="alert-content">
+                <h4 class="alert-title">${alert.title}</h4>
+                <p class="alert-message">${alert.message}</p>
+                ${alert.tip ? `<p class="alert-tip">${alert.tip}</p>` : ''}
+            </div>
+        `;
+        
+        return alertDiv;
     }
 
     displayIntersectionAnalysis(contentDiv, intersections) {
@@ -1942,72 +1949,6 @@ class SleepCycleCalculator {
         `;
     }
 
-    createVisualization(cycles, windows, fajr) {
-        const visualDiv = document.getElementById('cycleVisualization');
-        visualDiv.innerHTML = '';
-
-        const container = document.createElement('div');
-        container.className = 'relative bg-gray-100 rounded-lg p-4 overflow-x-auto';
-
-        // Create timeline
-        const timeline = document.createElement('div');
-        timeline.className = 'flex space-x-1 min-w-max';
-
-        cycles.forEach((cycle, index) => {
-            const cycleDiv = document.createElement('div');
-            cycleDiv.className = 'relative';
-            cycleDiv.style.width = '120px';
-
-            // Create segments for each cycle
-            const segments = [
-                { type: 'okay', height: '20%', label: 'Light' },
-                { type: 'worst', height: '40%', label: 'Deep' },
-                { type: 'okay', height: '20%', label: 'Transition' },
-                { type: 'best', height: '20%', label: 'REM' }
-            ];
-
-            let segmentHTML = `
-                <div class="text-xs text-center mb-1 font-medium">Cycle ${index + 1}</div>
-                <div class="h-20 border border-gray-300 rounded">
-            `;
-
-            segments.forEach(segment => {
-                const colorClass = {
-                    best: 'bg-sleep-best',
-                    okay: 'bg-sleep-okay',
-                    worst: 'bg-sleep-worst'
-                }[segment.type];
-
-                segmentHTML += `
-                    <div class="${colorClass} opacity-75" style="height: ${segment.height}; position: relative;">
-                        <div class="text-xs text-white text-center leading-4" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                            ${segment.label}
-                        </div>
-                    </div>
-                `;
-            });
-
-            segmentHTML += `</div>`;
-            segmentHTML += `<div class="text-xs text-center mt-1">${this.formatTime(cycle.start)}</div>`;
-
-            cycleDiv.innerHTML = segmentHTML;
-            timeline.appendChild(cycleDiv);
-        });
-
-        container.appendChild(timeline);
-
-        // Add Fajr marker if present
-        if (fajr) {
-            const fajrMarker = document.createElement('div');
-            fajrMarker.className = 'absolute top-0 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium z-10';
-            fajrMarker.textContent = `🌅 Fajr ${this.formatTime(fajr)}`;
-            fajrMarker.style.left = '10px';
-            fajrMarker.style.top = '-30px';
-            container.appendChild(fajrMarker);
-        }
-
-        visualDiv.appendChild(container);
-    }
 
     findBestWakeTimeForDeadline(windows, deadline) {
         // Find the best wake time before the deadline
@@ -2201,6 +2142,709 @@ class SleepCycleCalculator {
             this.calculateSleepCycles();
         }
     }
+
+    addViewToggle(timelineDiv) {
+        // Check if toggle already exists to avoid duplicates
+        if (timelineDiv.querySelector('.view-toggle')) {
+            return;
+        }
+        
+        const toggleDiv = document.createElement('div');
+        toggleDiv.className = 'view-toggle';
+        toggleDiv.innerHTML = `
+            <button type="button" class="view-toggle-btn accordion-btn active">Accordion</button>
+            <button type="button" class="view-toggle-btn carousel-btn">Carousel</button>
+        `;
+        
+        const accordionBtn = toggleDiv.querySelector('.accordion-btn');
+        const carouselBtn = toggleDiv.querySelector('.carousel-btn');
+        
+        accordionBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Accordion clicked'); // Debug log
+            accordionBtn.classList.add('active');
+            carouselBtn.classList.remove('active');
+            timelineDiv.dataset.currentView = 'accordion';
+            this.refreshCurrentView(timelineDiv);
+        });
+        
+        carouselBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Carousel clicked'); // Debug log
+            carouselBtn.classList.add('active');
+            accordionBtn.classList.remove('active');
+            timelineDiv.dataset.currentView = 'carousel';
+            this.refreshCurrentView(timelineDiv);
+        });
+        
+        timelineDiv.appendChild(toggleDiv);
+    }
+
+    refreshCurrentView(timelineDiv) {
+        // Find the detailed cycles section
+        const detailedSection = timelineDiv.querySelector('.detailed-cycles-section');
+        if (!detailedSection) return;
+        
+        // Remove old cycle content
+        const oldAccordion = detailedSection.querySelector('.sleep-cycles-container');
+        const oldCarousel = detailedSection.querySelector('.cycles-carousel-container');
+        
+        if (oldAccordion) oldAccordion.remove();
+        if (oldCarousel) oldCarousel.remove();
+        
+        // Re-render based on current view
+        const currentView = timelineDiv.dataset.currentView || 'accordion';
+        const allWindows = [
+            ...this.lastCalculation.windows.best.map(w => ({...w, type: 'best'})),
+            ...this.lastCalculation.windows.okay.map(w => ({...w, type: 'okay'})),
+            ...this.lastCalculation.windows.worst.map(w => ({...w, type: 'worst'}))
+        ].sort((a, b) => a.start - b.start);
+        
+        if (currentView === 'accordion') {
+            this.renderAccordionView(detailedSection, allWindows, this.lastCalculation.cycles);
+        } else {
+            this.renderCarouselView(detailedSection, allWindows, this.lastCalculation.cycles);
+        }
+    }
+
+    renderAccordionView(timelineDiv, allWindows, cycles) {
+        // Group by cycles for accordion display
+        const cycleGroups = {};
+        allWindows.forEach(window => {
+            if (!cycleGroups[window.cycle]) {
+                cycleGroups[window.cycle] = [];
+            }
+            cycleGroups[window.cycle].push(window);
+        });
+
+        const accordionContainer = document.createElement('div');
+        accordionContainer.className = 'sleep-cycles-container';
+
+        Object.keys(cycleGroups).forEach((cycleNum, index) => {
+            const cycleDiv = document.createElement('div');
+            cycleDiv.className = 'cycle-accordion';
+            
+            // Cycle header (clickable)
+            const cycleHeader = document.createElement('div');
+            cycleHeader.className = 'cycle-header';
+            cycleHeader.innerHTML = `
+                <div>
+                    <h3 class="cycle-title">Sleep Cycle ${cycleNum}</h3>
+                    <p class="cycle-subtitle">${cycles[cycleNum - 1] ? `${this.formatTime(cycles[cycleNum - 1].start)} - ${this.formatTime(cycles[cycleNum - 1].end)}` : ''}</p>
+                </div>
+                <div class="cycle-toggle">▶</div>
+            `;
+            
+            // Cycle content (collapsible)
+            const cycleContent = document.createElement('div');
+            cycleContent.className = 'cycle-content';
+            if (index === 0) {
+                cycleContent.classList.add('expanded');
+                cycleHeader.classList.add('expanded');
+                cycleHeader.querySelector('.cycle-toggle').classList.add('expanded');
+            }
+
+            // Sort windows by start time for this cycle
+            const sortedWindows = cycleGroups[cycleNum].sort((a, b) => a.start - b.start);
+
+            // Create windows grid
+            const windowsGrid = document.createElement('div');
+            windowsGrid.className = 'cycle-windows-grid';
+
+            sortedWindows.forEach(window => {
+                const windowCard = this.createModernWindowCard(window);
+                windowsGrid.appendChild(windowCard);
+            });
+
+            cycleContent.appendChild(windowsGrid);
+            
+            // Add click handler for accordion
+            cycleHeader.addEventListener('click', () => {
+                const isExpanded = cycleContent.classList.contains('expanded');
+                
+                // Close all other accordions
+                accordionContainer.querySelectorAll('.cycle-content').forEach(content => {
+                    content.classList.remove('expanded');
+                });
+                accordionContainer.querySelectorAll('.cycle-header').forEach(header => {
+                    header.classList.remove('expanded');
+                });
+                accordionContainer.querySelectorAll('.cycle-toggle').forEach(toggle => {
+                    toggle.classList.remove('expanded');
+                });
+                
+                // Toggle current accordion
+                if (!isExpanded) {
+                    cycleContent.classList.add('expanded');
+                    cycleHeader.classList.add('expanded');
+                    cycleHeader.querySelector('.cycle-toggle').classList.add('expanded');
+                }
+            });
+
+            cycleDiv.appendChild(cycleHeader);
+            cycleDiv.appendChild(cycleContent);
+            accordionContainer.appendChild(cycleDiv);
+        });
+
+        timelineDiv.appendChild(accordionContainer);
+    }
+
+    renderCarouselView(timelineDiv, allWindows, cycles) {
+        // Group by cycles for carousel display
+        const cycleGroups = {};
+        allWindows.forEach(window => {
+            if (!cycleGroups[window.cycle]) {
+                cycleGroups[window.cycle] = [];
+            }
+            cycleGroups[window.cycle].push(window);
+        });
+
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'cycles-carousel-container';
+
+        const carousel = document.createElement('div');
+        carousel.className = 'cycles-carousel';
+
+        // Add navigation arrows
+        const prevBtn = document.createElement('div');
+        prevBtn.className = 'carousel-nav carousel-nav-prev';
+        prevBtn.innerHTML = '‹';
+        
+        const nextBtn = document.createElement('div');
+        nextBtn.className = 'carousel-nav carousel-nav-next';
+        nextBtn.innerHTML = '›';
+
+        carouselContainer.appendChild(prevBtn);
+        carouselContainer.appendChild(nextBtn);
+
+        Object.keys(cycleGroups).forEach(cycleNum => {
+            const cycleCard = document.createElement('div');
+            cycleCard.className = 'cycle-card-mobile';
+            
+            // Card header
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'cycle-card-header';
+            cardHeader.innerHTML = `
+                <h3 class="cycle-card-title">Sleep Cycle ${cycleNum}</h3>
+                <p class="cycle-card-time">${cycles[cycleNum - 1] ? `${this.formatTime(cycles[cycleNum - 1].start)} - ${this.formatTime(cycles[cycleNum - 1].end)}` : ''}</p>
+            `;
+            cycleCard.appendChild(cardHeader);
+
+            // Sort windows and create cards
+            const sortedWindows = cycleGroups[cycleNum].sort((a, b) => a.start - b.start);
+            sortedWindows.forEach(window => {
+                const windowCard = this.createModernWindowCard(window);
+                windowCard.style.marginBottom = 'var(--spacing-sm)';
+                cycleCard.appendChild(windowCard);
+            });
+
+            carousel.appendChild(cycleCard);
+        });
+
+        // Add carousel indicators
+        const indicators = document.createElement('div');
+        indicators.className = 'carousel-indicators';
+        Object.keys(cycleGroups).forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = `carousel-dot${index === 0 ? ' active' : ''}`;
+            indicators.appendChild(dot);
+        });
+
+        carouselContainer.appendChild(carousel);
+        carouselContainer.appendChild(indicators);
+        timelineDiv.appendChild(carouselContainer);
+
+        // Enhanced carousel functionality
+        this.setupCarouselNavigation(carousel, indicators, prevBtn, nextBtn, Object.keys(cycleGroups).length);
+    }
+
+    createModernWindowCard(window) {
+        const icon = {
+            best: '✅',
+            okay: '⚠️',
+            worst: '❌'
+        }[window.type];
+
+        const qualityText = {
+            best: 'Excellent',
+            okay: 'Okay', 
+            worst: 'Avoid'
+        }[window.type];
+
+        const durationMinutes = Math.round((window.end - window.start) / (1000 * 60));
+        
+        const windowCard = document.createElement('div');
+        windowCard.className = `wake-window-card ${window.type}`;
+        
+        windowCard.innerHTML = `
+            <div class="wake-window-header">
+                <div class="wake-window-time">
+                    ${icon} ${this.formatTime(window.start)} - ${this.formatTime(window.end)}
+                </div>
+                <span class="wake-window-badge ${window.type}">${qualityText}</span>
+            </div>
+            <div class="wake-window-details">${window.reason}</div>
+            <div class="wake-window-stage">
+                ${durationMinutes} min window${window.stage ? ` • ${window.stage.replace('_', ' ').toUpperCase()}` : ''}
+            </div>
+        `;
+        
+        return windowCard;
+    }
+
+    renderStickyConstraints(timelineDiv) {
+        const stickyDiv = document.createElement('div');
+        stickyDiv.className = 'constraints-sticky';
+        
+        const bedtime = this.lastCalculation?.bedtime;
+        const fajrWindow = this.lastCalculation?.fajrWindow;
+        const workTime = this.lastCalculation?.workTime;
+        const fajr = this.lastCalculation?.fajr;
+        
+        stickyDiv.innerHTML = `
+            <div class="constraints-sticky-content">
+                <div class="constraint-sticky-item">
+                    <span class="constraint-sticky-icon">🕒</span>
+                    <span>Bed: ${bedtime ? this.formatTime(bedtime) : 'N/A'}</span>
+                </div>
+                ${fajrWindow ? `
+                    <div class="constraint-sticky-item">
+                        <span class="constraint-sticky-icon">☀️</span>
+                        <span>Fajr: ${this.formatTime(fajrWindow.start)}–${this.formatTime(fajrWindow.end)}</span>
+                    </div>
+                ` : fajr ? `
+                    <div class="constraint-sticky-item">
+                        <span class="constraint-sticky-icon">☀️</span>
+                        <span>Fajr: ${this.formatTime(fajr)}</span>
+                    </div>
+                ` : ''}
+                ${workTime ? `
+                    <div class="constraint-sticky-item">
+                        <span class="constraint-sticky-icon">💼</span>
+                        <span>Work: ${this.formatTime(workTime)}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        timelineDiv.appendChild(stickyDiv);
+    }
+
+
+    setupCarouselNavigation(carousel, indicators, prevBtn, nextBtn, totalItems) {
+        let currentIndex = 0;
+        let startX = 0;
+        let isDragging = false;
+
+        // Calculate card width dynamically
+        const getCardWidth = () => {
+            const card = carousel.querySelector('.cycle-card-mobile');
+            return card ? card.offsetWidth + 16 : 296; // width + gap
+        };
+
+        // Update indicators
+        const updateIndicators = (index) => {
+            indicators.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        };
+
+        // Scroll to specific index
+        const scrollToIndex = (index) => {
+            const cardWidth = getCardWidth();
+            carousel.scrollTo({
+                left: index * cardWidth,
+                behavior: 'smooth'
+            });
+            currentIndex = index;
+            updateIndicators(index);
+        };
+
+        // Navigation button handlers
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                scrollToIndex(currentIndex - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < totalItems - 1) {
+                scrollToIndex(currentIndex + 1);
+            }
+        });
+
+        // Touch/mouse drag functionality
+        carousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - carousel.offsetLeft;
+            carousel.style.cursor = 'grabbing';
+        });
+
+        carousel.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].pageX - carousel.offsetLeft;
+        });
+
+        const handleMove = (e, clientX) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = clientX - carousel.offsetLeft;
+            const walk = (x - startX) * 2;
+            carousel.scrollLeft -= walk;
+        };
+
+        carousel.addEventListener('mousemove', (e) => handleMove(e, e.pageX));
+        carousel.addEventListener('touchmove', (e) => handleMove(e, e.touches[0].pageX));
+
+        const stopDragging = () => {
+            isDragging = false;
+            carousel.style.cursor = 'grab';
+            
+            // Snap to nearest card
+            const cardWidth = getCardWidth();
+            const newIndex = Math.round(carousel.scrollLeft / cardWidth);
+            scrollToIndex(Math.max(0, Math.min(newIndex, totalItems - 1)));
+        };
+
+        carousel.addEventListener('mouseup', stopDragging);
+        carousel.addEventListener('mouseleave', stopDragging);
+        carousel.addEventListener('touchend', stopDragging);
+
+        // Scroll event for manual scrolling
+        let scrollTimeout;
+        carousel.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const cardWidth = getCardWidth();
+                const newIndex = Math.round(carousel.scrollLeft / cardWidth);
+                if (newIndex !== currentIndex) {
+                    currentIndex = newIndex;
+                    updateIndicators(currentIndex);
+                }
+            }, 150);
+        });
+
+        // Keyboard navigation
+        carousel.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                scrollToIndex(currentIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentIndex < totalItems - 1) {
+                scrollToIndex(currentIndex + 1);
+            }
+        });
+
+        // Make carousel focusable for keyboard navigation
+        carousel.setAttribute('tabindex', '0');
+    }
+
+
+    createWakeWindowCard(window, cycleNum) {
+        const durationMinutes = Math.round((window.end - window.start) / (1000 * 60));
+        const icon = {
+            best: '✅',
+            okay: '⚠️',
+            worst: '❌'
+        }[window.type];
+
+        const qualityText = {
+            best: 'Excellent',
+            okay: 'Okay', 
+            worst: 'Avoid'
+        }[window.type];
+
+        const card = document.createElement('div');
+        card.className = `wake-window-card ${window.type}`;
+
+        card.innerHTML = `
+            <div class="wake-window-header">
+                <div class="wake-window-time">
+                    ${icon} ${this.formatTime(window.start)} - ${this.formatTime(window.end)}
+                </div>
+                <span class="wake-window-badge ${window.type}">${qualityText}</span>
+            </div>
+            <div class="wake-window-details">${window.reason}</div>
+            <div class="wake-window-stage">
+                Cycle ${cycleNum} • ${durationMinutes} min window${window.stage ? ` • ${window.stage.replace('_', ' ').toUpperCase()}` : ''}
+            </div>
+        `;
+
+        return card;
+    }
+
+    displayIntersectionAnalysis(contentDiv, intersectionAnalysis) {
+        if (!intersectionAnalysis) return;
+
+        contentDiv.innerHTML = '';
+
+        // Create constraints summary card
+        this.createConstraintsSummary(contentDiv, intersectionAnalysis);
+
+        // Group options by classification
+        const groupedOptions = {
+            best: intersectionAnalysis.best || [],
+            okay: intersectionAnalysis.okay || [],
+            bad: intersectionAnalysis.bad || []
+        };
+
+        // Create compact tabbed interface
+        this.createCompactFajrOptions(contentDiv, groupedOptions);
+
+        // Add overall analysis if available
+        if (intersectionAnalysis.analysis) {
+            this.createAnalysisSummary(contentDiv, intersectionAnalysis.analysis);
+        }
+    }
+
+    createCompactFajrOptions(contentDiv, groupedOptions) {
+        const compactSection = document.createElement('div');
+        compactSection.className = 'fajr-options-compact';
+
+        // Create tabs
+        const tabsContainer = document.createElement('div');
+        tabsContainer.className = 'fajr-tabs';
+
+        const tabs = [
+            { key: 'best', label: 'Best', icon: '✅', count: groupedOptions.best.length },
+            { key: 'okay', label: 'Okay', icon: '⚠️', count: groupedOptions.okay.length },
+            { key: 'bad', label: 'Poor', icon: '❌', count: groupedOptions.bad.length }
+        ];
+
+        tabs.forEach((tab, index) => {
+            if (tab.count > 0) {
+                const tabButton = document.createElement('button');
+                tabButton.className = `fajr-tab ${tab.key}${index === 0 ? ' active' : ''}`;
+                tabButton.innerHTML = `
+                    ${tab.icon} ${tab.label}
+                    <span class="fajr-tab-count">${tab.count}</span>
+                `;
+                tabButton.addEventListener('click', () => this.switchFajrTab(tab.key, compactSection));
+                tabsContainer.appendChild(tabButton);
+            }
+        });
+
+        compactSection.appendChild(tabsContainer);
+
+        // Create tab content containers
+        Object.entries(groupedOptions).forEach(([classification, options]) => {
+            if (options.length > 0) {
+                const tabContent = document.createElement('div');
+                tabContent.className = `fajr-tab-content ${classification === 'best' ? 'active' : ''}`;
+                tabContent.dataset.tab = classification;
+
+                const optionsGrid = document.createElement('div');
+                optionsGrid.className = 'fajr-options-grid';
+
+                options.forEach((option, index) => {
+                    const optionCard = this.createCompactFajrOptionCard(option, classification, index + 1);
+                    optionsGrid.appendChild(optionCard);
+                });
+
+                tabContent.appendChild(optionsGrid);
+                compactSection.appendChild(tabContent);
+            }
+        });
+
+        contentDiv.appendChild(compactSection);
+    }
+
+    switchFajrTab(activeKey, container) {
+        // Update tab buttons
+        container.querySelectorAll('.fajr-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        container.querySelector(`.fajr-tab.${activeKey}`).classList.add('active');
+
+        // Update tab content
+        container.querySelectorAll('.fajr-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        container.querySelector(`[data-tab="${activeKey}"]`).classList.add('active');
+    }
+
+    createCompactFajrOptionCard(option, classification, optionNumber) {
+        const card = document.createElement('div');
+        card.className = `fajr-option-card-compact ${classification}`;
+
+        const qualityText = {
+            best: 'Excellent',
+            okay: 'Okay',
+            bad: 'Poor'
+        }[classification] || 'Standard';
+
+        card.innerHTML = `
+            <div class="fajr-option-header-compact">
+                <h4 class="fajr-option-title-compact">Option ${optionNumber}</h4>
+                <span class="fajr-option-badge ${classification}">${qualityText}</span>
+            </div>
+            
+            <div class="fajr-times-inline">
+                <div class="fajr-time-compact">
+                    <div class="fajr-time-label-compact">Fajr Wake</div>
+                    <div class="fajr-time-value-compact">
+                        ${option.fajrStart ? `${this.formatTime(option.fajrStart)} - ${this.formatTime(option.fajrEnd)}` : 'N/A'}
+                    </div>
+                    <div class="fajr-time-quality ${classification === 'best' ? 'excellent' : classification === 'okay' ? 'okay' : 'poor'}">
+                        ${option.fajrStage || 'Standard'}
+                    </div>
+                </div>
+                <div class="fajr-time-compact">
+                    <div class="fajr-time-label-compact">Work Wake</div>
+                    <div class="fajr-time-value-compact">
+                        ${option.workTime ? this.formatTime(option.workTime) : 'N/A'}
+                    </div>
+                    <div class="fajr-time-quality ${option.workStage?.classification === 'best' ? 'excellent' : option.workStage?.classification === 'okay' ? 'okay' : 'poor'}">
+                        ${option.workStage?.stage || 'Standard'}
+                    </div>
+                </div>
+            </div>
+
+            <div class="fajr-option-details-compact">
+                <span>${option.sleepDuration?.toFixed(1) || 'N/A'} hrs sleep</span>
+                <span>Cycle ${option.fajrCycle || 'N/A'}</span>
+                <span>${option.timeUntilWork ? Math.round(option.timeUntilWork) + ' min to work' : 'N/A'}</span>
+            </div>
+        `;
+
+        return card;
+    }
+
+    createConstraintsSummary(contentDiv, intersectionAnalysis) {
+        const constraintsCard = document.createElement('div');
+        constraintsCard.className = 'constraints-card';
+        
+        constraintsCard.innerHTML = `
+            <div class="constraints-header">
+                📅 Schedule Constraints
+            </div>
+            <div class="constraints-grid">
+                <div class="constraint-item">
+                    <span class="constraint-icon">🕒</span>
+                    <span>Bedtime: ${this.formatTime(this.lastCalculation.bedtime)}</span>
+                </div>
+                <div class="constraint-item">
+                    <span class="constraint-icon">☀️</span>
+                    <span>Fajr: ${this.formatTime(this.lastCalculation.fajrWindow?.start)} – ${this.formatTime(this.lastCalculation.fajrWindow?.end)}</span>
+                </div>
+                <div class="constraint-item">
+                    <span class="constraint-icon">💼</span>
+                    <span>Work: ${this.formatTime(this.lastCalculation.workTime)}</span>
+                </div>
+                <div class="constraint-item">
+                    <span class="constraint-icon">😴</span>
+                    <span>Total Sleep: ${intersectionAnalysis.totalSleepTime?.toFixed(1) || 'N/A'} hours</span>
+                </div>
+            </div>
+        `;
+        
+        contentDiv.appendChild(constraintsCard);
+    }
+
+    createFajrOptionsSection(contentDiv, classification, options) {
+        const section = document.createElement('div');
+        section.className = 'fajr-options-section';
+
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'fajr-section-header';
+        
+        const titleText = {
+            best: 'Best Options',
+            okay: 'Okay Options', 
+            bad: 'Poor Options'
+        }[classification] || 'Options';
+
+        sectionHeader.innerHTML = `
+            <h3 class="fajr-section-title">${titleText}</h3>
+            <span class="fajr-section-count">${options.length}</span>
+        `;
+        
+        section.appendChild(sectionHeader);
+
+        options.forEach((option, index) => {
+            const optionCard = this.createFajrOptionCard(option, classification, index + 1);
+            section.appendChild(optionCard);
+        });
+
+        contentDiv.appendChild(section);
+    }
+
+    createFajrOptionCard(option, classification, optionNumber) {
+        const card = document.createElement('div');
+        card.className = `fajr-option-card ${classification}`;
+
+        const qualityText = {
+            best: 'Excellent',
+            okay: 'Okay',
+            bad: 'Poor'
+        }[classification] || 'Standard';
+
+        card.innerHTML = `
+            <div class="fajr-option-header">
+                <h4 class="fajr-option-title">Option ${optionNumber} — ${option.quality || qualityText}</h4>
+                <span class="fajr-option-badge ${classification}">${qualityText}</span>
+            </div>
+            
+            <div class="fajr-times-grid">
+                <div class="fajr-time-item">
+                    <span class="fajr-time-label">Fajr Wake</span>
+                    <div class="fajr-time-value">
+                        ${option.fajrStart ? `${this.formatTime(option.fajrStart)} - ${this.formatTime(option.fajrEnd)}` : 'N/A'}
+                        <span class="fajr-time-quality ${classification === 'best' ? 'excellent' : classification === 'okay' ? 'okay' : 'poor'}">
+                            ${option.fajrStage || 'Standard'}
+                        </span>
+                    </div>
+                </div>
+                <div class="fajr-time-item">
+                    <span class="fajr-time-label">Work Wake</span>
+                    <div class="fajr-time-value">
+                        ${option.workTime ? this.formatTime(option.workTime) : 'N/A'}
+                        <span class="fajr-time-quality ${option.workStage?.classification === 'best' ? 'excellent' : option.workStage?.classification === 'okay' ? 'okay' : 'poor'}">
+                            ${option.workStage?.stage || 'Standard'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fajr-option-details">
+                <div class="fajr-detail-item">
+                    <span class="fajr-detail-label">Sleep Duration</span>
+                    <span class="fajr-detail-value">${option.sleepDuration?.toFixed(1) || 'N/A'} hours</span>
+                </div>
+                <div class="fajr-detail-item">
+                    <span class="fajr-detail-label">Sleep Cycle</span>
+                    <span class="fajr-detail-value">Cycle ${option.fajrCycle || 'N/A'}</span>
+                </div>
+                <div class="fajr-detail-item">
+                    <span class="fajr-detail-label">Time to Work</span>
+                    <span class="fajr-detail-value">${option.timeUntilWork ? Math.round(option.timeUntilWork) + ' min' : 'N/A'}</span>
+                </div>
+                <div class="fajr-detail-item">
+                    <span class="fajr-detail-label">Fajr Distance</span>
+                    <span class="fajr-detail-value">${option.fajrDurationMinutes || 'N/A'} min</span>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    createAnalysisSummary(contentDiv, analysis) {
+        if (!analysis.message) return;
+
+        const summaryCard = document.createElement('div');
+        summaryCard.className = 'ios-card';
+        summaryCard.style.marginTop = 'var(--spacing-lg)';
+        
+        summaryCard.innerHTML = `
+            <h3 class="card-title">Analysis Summary</h3>
+            <p style="color: var(--text-secondary); font-size: var(--font-size-body); line-height: 1.5; margin: 0;">
+                ${analysis.message}
+            </p>
+        `;
+        
+        contentDiv.appendChild(summaryCard);
+    }
 }
 
 // Initialize the app
@@ -2208,5 +2852,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new SleepCycleCalculator();
     app.loadFromURL();
 });
+
 
 

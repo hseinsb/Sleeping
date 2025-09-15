@@ -2,228 +2,232 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sleep Cycle Optimizer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'sleep-best': '#10b981',
-                        'sleep-okay': '#f59e0b',
-                        'sleep-worst': '#ef4444',
-                    }
-                }
-            }
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sleep Optimizer">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    
+    <title>Sleep Optimizer</title>
+    
+    <!-- App Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMwMDdBRkYiLz4KPHBhdGggZD0iTTkwIDUwQzEwNi41NjkgNTAgMTIwIDYzLjQzMTUgMTIwIDgwUzEwNi41NjkgMTEwIDkwIDExMEM3My40MzE1IDExMCA2MCA5Ni41Njg1IDYwIDgwUzczLjQzMTUgNTAgOTAgNTBaIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KPHBhdGggZD0iTTkwIDYwQzEwMC40OTMgNjAgMTA5IDY4LjUwNjYgMTA5IDc5UzEwMC40OTMgOTggOTAgOThTNzEgODkuNDkzNCA3MSA3OVM3OS41MDY2IDYwIDkwIDYwWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzAwN0FGRiIvPgo8cGF0aCBkPSJNMTYgOUMxOC43NjE0IDkgMjEgMTEuMjM4NiAyMSAxNFMxOC43NjE0IDE5IDE2IDE5UzExIDE2Ljc2MTQgMTEgMTRTMTMuMjM4NiA5IDE2IDlaIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KPHBhdGggZD0iTTE2IDExQzE3LjY1NjkgMTEgMTkgMTIuMzQzMSAxOSAxNFMxNy42NTY5IDE3IDE2IDE3UzEzIDE1LjY1NjkgMTMgMTRTMTQuMzQzMSAxMSAxNiAxMVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-50 min-h-screen py-8">
-    <div class="container mx-auto px-4 max-w-4xl">
+<body>
+    <div class="app-container">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Sleep Cycle Optimizer</h1>
-            <p class="text-gray-600">Find the perfect wake-up times based on sleep science</p>
+        <div class="app-header">
+            <h1 class="app-title">Sleep Optimizer</h1>
+            <p class="app-subtitle">Find perfect wake-up times based on sleep science</p>
         </div>
 
-        <!-- Input Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4">Set Your Sleep Schedule</h2>
+        <!-- Bedtime Section -->
+        <div class="form-section">
+            <h3 class="form-section-header">Bedtime</h3>
+            <div class="form-group">
+                <label for="bedtime" class="form-label">When do you plan to go to bed?</label>
+                <input 
+                    type="time" 
+                    id="bedtime" 
+                    class="form-input"
+                    value="23:30"
+                >
+            </div>
+        </div>
+
+        <!-- Fajr Prayer Section -->
+        <div class="form-section">
+            <h3 class="form-section-header">Fajr Prayer Options</h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Bedtime Input -->
-                <div>
-                    <label for="bedtime" class="block text-sm font-medium text-gray-700 mb-2">
-                        Bedtime (required)
-                    </label>
-                    <input 
-                        type="time" 
-                        id="bedtime" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value="23:30"
-                    >
-                </div>
-
-                <!-- Fajr Options -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                        Fajr Prayer Options
-                    </label>
-                    
-                    <!-- Fajr Mode Selection -->
-                    <div class="space-y-3 mb-4">
-                        <label class="flex items-center">
-                            <input type="radio" name="fajrMode" value="none" class="mr-2" checked>
-                            <span class="text-sm">No Fajr consideration</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="fajrMode" value="fixed" class="mr-2">
-                            <span class="text-sm">Fixed Fajr time</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="fajrMode" value="window" class="mr-2">
-                            <span class="text-sm">Fajr time window (optimize within range)</span>
-                        </label>
+            <div class="form-group">
+                <div class="ios-radio-group">
+                    <div class="ios-radio-item">
+                        <input type="radio" name="fajrMode" value="none" checked>
+                        <label>No Fajr consideration</label>
                     </div>
-
-                    <!-- Fixed Fajr Time -->
-                    <div id="fixedFajrSection" class="hidden mb-3">
-                        <label for="fajr" class="block text-xs text-gray-600 mb-1">Exact Fajr time:</label>
-                        <input 
-                            type="time" 
-                            id="fajr" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
+                    <div class="ios-radio-item">
+                        <input type="radio" name="fajrMode" value="fixed">
+                        <label>Fixed Fajr time</label>
                     </div>
-
-                    <!-- Fajr Window -->
-                    <div id="fajrWindowSection" class="hidden space-y-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label for="fajrStart" class="block text-xs text-gray-600 mb-1">Earliest Fajr:</label>
-                                <input 
-                                    type="time" 
-                                    id="fajrStart" 
-                                    class="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    value="05:00"
-                                >
-                            </div>
-                            <div>
-                                <label for="fajrEnd" class="block text-xs text-gray-600 mb-1">Latest Fajr:</label>
-                                <input 
-                                    type="time" 
-                                    id="fajrEnd" 
-                                    class="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    value="06:30"
-                                >
-                            </div>
-                        </div>
-                        <div>
-                            <label for="workTime" class="block text-xs text-gray-600 mb-1">Work/Commitment starts at:</label>
-                            <input 
-                                type="time" 
-                                id="workTime" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="07:00"
-                            >
-                        </div>
+                    <div class="ios-radio-item">
+                        <input type="radio" name="fajrMode" value="window">
+                        <label>Fajr time window (optimize within range)</label>
                     </div>
                 </div>
             </div>
 
-            <!-- Advanced Options -->
-            <div class="mt-6">
-                <div class="flex items-center justify-between mb-2">
-                    <label class="text-sm font-medium text-gray-700">
-                        Sleep Cycle Length: <span id="cycleValue">90</span> minutes
-                    </label>
+            <!-- Fixed Fajr Time -->
+            <div id="fixedFajrSection" class="form-group hidden">
+                <label for="fajr" class="form-label">Exact Fajr time</label>
+                <input 
+                    type="time" 
+                    id="fajr" 
+                    class="form-input"
+                >
+            </div>
+
+            <!-- Fajr Window -->
+            <div id="fajrWindowSection" class="hidden">
+                <div class="form-group">
+                    <label class="form-label">Fajr Prayer Window</label>
+                    <div class="form-row">
+                        <div class="form-row-item">
+                            <label for="fajrStart" class="form-label-inline">Earliest</label>
+                            <input 
+                                type="time" 
+                                id="fajrStart" 
+                                class="form-input"
+                                value="05:00"
+                            >
+                        </div>
+                        <div class="form-row-item">
+                            <label for="fajrEnd" class="form-label-inline">Latest</label>
+                            <input 
+                                type="time" 
+                                id="fajrEnd" 
+                                class="form-input"
+                                value="06:30"
+                            >
+                        </div>
+                    </div>
                 </div>
+                <div class="form-group">
+                    <label for="workTime" class="form-label">Work/Commitment starts at</label>
+                    <input 
+                        type="time" 
+                        id="workTime" 
+                        class="form-input"
+                        value="07:00"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Sleep Cycle Settings -->
+        <div class="form-section">
+            <h3 class="form-section-header">Sleep Cycle Settings</h3>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    Sleep Cycle Length: <span id="cycleValue">90</span> minutes
+                </label>
                 <input 
                     type="range" 
                     id="cycleLength" 
                     min="80" 
                     max="110" 
                     value="90"
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    class="ios-slider"
                 >
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <div style="display: flex; justify-content: space-between; font-size: var(--font-size-caption-1); color: var(--text-tertiary); margin-top: var(--spacing-sm);">
                     <span>80 min</span>
                     <span>90 min</span>
                     <span>110 min</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Work Mode Option -->
-            <div class="mt-4 p-4 bg-gray-50 rounded-md">
-                <label class="flex items-center">
-                    <input type="checkbox" id="workMode" class="mr-2">
-                    <span class="text-sm font-medium text-gray-700">Work Mode: Must wake up by</span>
-                </label>
+        <!-- Work Mode Section -->
+        <div class="form-section">
+            <h3 class="form-section-header">Work/Commitment Schedule</h3>
+            
+            <div class="form-group">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                    <label class="form-label-inline">Must wake up by a specific time</label>
+                    <div class="ios-switch">
+                        <input type="checkbox" id="workMode">
+                        <span class="ios-switch-slider"></span>
+                    </div>
+                </div>
                 <input 
                     type="time" 
                     id="mustWakeBy" 
-                    class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    class="form-input"
+                    placeholder="Select wake-up deadline"
                     disabled
                 >
             </div>
+        </div>
 
-            <!-- Calculate Button -->
+        <!-- Calculate Button -->
+        <div class="ios-card" style="background: linear-gradient(135deg, var(--ios-blue) 0%, #0056D3 100%); border: none; box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);">
             <button 
                 id="calculateBtn" 
-                class="w-full mt-6 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-medium"
+                class="ios-button ios-button-primary" 
+                style="width: 100%; background: none; border: none; box-shadow: none; color: white; font-weight: 600; font-size: var(--font-size-headline);"
             >
                 Calculate Optimal Wake Times
             </button>
         </div>
 
         <!-- Results Section -->
-        <div id="results" class="hidden">
+        <div id="results" class="hidden results-section">
             <!-- Fajr Analysis -->
-            <div id="fajrAnalysis" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
-                <h3 class="text-lg font-semibold mb-3 flex items-center">
+            <div id="fajrAnalysis" class="ios-card fajr-analysis hidden">
+                <h3 class="card-title" style="display: flex; align-items: center;">
                     🌅 Fajr Analysis
                 </h3>
-                <div id="fajrContent" class="text-gray-700"></div>
+                <div id="fajrContent"></div>
             </div>
 
             <!-- Fajr Window Optimization -->
-            <div id="fajrOptimization" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
-                <h3 class="text-lg font-semibold mb-3 flex items-center">
+            <div id="fajrOptimization" class="ios-card hidden">
+                <h3 class="card-title" style="display: flex; align-items: center;">
                     🎯 Fajr Window Optimization
                 </h3>
-                <div id="fajrOptimizationContent" class="space-y-4"></div>
+                <div id="fajrOptimizationContent"></div>
             </div>
 
             <!-- Wake Up Windows -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold mb-4">Your Optimal Wake-Up Windows</h3>
+            <div class="ios-card">
+                <h3 class="card-title">Your Optimal Wake-Up Windows</h3>
                 
                 <!-- Legend -->
-                <div class="flex flex-wrap gap-4 mb-6 text-sm">
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 bg-sleep-best rounded mr-2"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color status-best"></div>
                         <span>✅ Best (End of cycle - REM sleep)</span>
                     </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 bg-sleep-okay rounded mr-2"></div>
+                    <div class="legend-item">
+                        <div class="legend-color status-okay"></div>
                         <span>⚠️ Okay (Light sleep)</span>
                     </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 bg-sleep-worst rounded mr-2"></div>
+                    <div class="legend-item">
+                        <div class="legend-color status-worst"></div>
                         <span>❌ Avoid (Deep sleep)</span>
                     </div>
                 </div>
 
                 <!-- Timeline -->
-                <div id="timeline" class="space-y-4"></div>
-            </div>
-
-            <!-- Sleep Cycles Visualization -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold mb-4">Sleep Cycles Timeline</h3>
-                <div id="cycleVisualization" class="relative"></div>
+                <div id="timeline" class="sleep-timeline"></div>
             </div>
 
             <!-- Export Options -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold mb-4">Export Your Schedule</h3>
-                <div class="flex flex-wrap gap-3">
+            <div class="ios-card">
+                <h3 class="card-title">Export Your Schedule</h3>
+                <div class="export-buttons">
                     <button 
                         id="exportPDF" 
-                        class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200 text-sm"
+                        class="ios-button ios-button-red"
                     >
                         📄 Export to PDF
                     </button>
                     <button 
                         id="exportText" 
-                        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200 text-sm"
+                        class="ios-button ios-button-green"
                     >
                         📝 Copy as Text
                     </button>
                     <button 
                         id="shareURL" 
-                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm"
+                        class="ios-button ios-button-primary"
                     >
                         🔗 Share URL
                     </button>
@@ -233,5 +237,20 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
