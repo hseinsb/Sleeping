@@ -2221,7 +2221,10 @@ class SleepCycleCalculator {
         const accordionContainer = document.createElement('div');
         accordionContainer.className = 'sleep-cycles-container';
 
-        Object.keys(cycleGroups).forEach((cycleNum, index) => {
+        // Sort cycle numbers numerically to fix accordion order
+        const sortedCycleNums = Object.keys(cycleGroups).sort((a, b) => parseInt(a) - parseInt(b));
+        
+        sortedCycleNums.forEach((cycleNum, index) => {
             const cycleDiv = document.createElement('div');
             cycleDiv.className = 'cycle-accordion';
             
@@ -2248,9 +2251,9 @@ class SleepCycleCalculator {
             // Sort windows by start time for this cycle
             const sortedWindows = cycleGroups[cycleNum].sort((a, b) => a.start - b.start);
 
-            // Create windows grid
+            // Create windows grid (vertical layout for accordion)
             const windowsGrid = document.createElement('div');
-            windowsGrid.className = 'cycle-windows-grid';
+            windowsGrid.className = 'cycle-windows-grid-accordion';
 
             sortedWindows.forEach(window => {
                 const windowCard = this.createModernWindowCard(window);
@@ -2398,27 +2401,43 @@ class SleepCycleCalculator {
         let currentIndex = 0;
         let startX = 0;
         let isDragging = false;
-
-        // Calculate card width dynamically
-        const getCardWidth = () => {
+        let cardWidth = 0;
+        
+        // Cache card width for better performance
+        const calculateCardWidth = () => {
             const card = carousel.querySelector('.cycle-card-mobile');
-            return card ? card.offsetWidth + 16 : 296; // width + gap
+            cardWidth = card ? card.offsetWidth + 16 : 296; // width + gap
         };
+        
+        // Initialize card width
+        calculateCardWidth();
+        
+        // Recalculate on resize with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(calculateCardWidth, 100);
+        });
 
-        // Update indicators
+        // Update indicators efficiently
         const updateIndicators = (index) => {
-            indicators.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+            const dots = indicators.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
         };
 
-        // Scroll to specific index
-        const scrollToIndex = (index) => {
-            const cardWidth = getCardWidth();
-            carousel.scrollTo({
-                left: index * cardWidth,
-                behavior: 'smooth'
-            });
+        // Optimized scroll to index
+        const scrollToIndex = (index, smooth = true) => {
+            const targetScroll = index * cardWidth;
+            if (smooth) {
+                carousel.scrollTo({
+                    left: targetScroll,
+                    behavior: 'smooth'
+                });
+            } else {
+                carousel.scrollLeft = targetScroll;
+            }
             currentIndex = index;
             updateIndicators(index);
         };
@@ -2436,62 +2455,106 @@ class SleepCycleCalculator {
             }
         });
 
-        // Touch/mouse drag functionality
-        carousel.addEventListener('mousedown', (e) => {
+        // Optimized touch/mouse drag functionality
+        let isMouseDown = false;
+        
+        const startDragging = (clientX) => {
             isDragging = true;
-            startX = e.pageX - carousel.offsetLeft;
+            isMouseDown = true;
+            startX = clientX - carousel.offsetLeft;
             carousel.style.cursor = 'grabbing';
+        };
+        
+        carousel.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDragging(e.pageX);
         });
 
         carousel.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            startX = e.touches[0].pageX - carousel.offsetLeft;
-        });
+            startDragging(e.touches[0].pageX);
+        }, { passive: true });
 
-        const handleMove = (e, clientX) => {
-            if (!isDragging) return;
-            e.preventDefault();
+        // Optimized move handlers with throttling
+        let lastMoveTime = 0;
+        const moveThrottle = 16; // ~60fps
+        
+        const handleMove = (clientX, isTouch = false) => {
+            if (!isDragging || !isMouseDown) return;
+            
+            const now = Date.now();
+            if (now - lastMoveTime < moveThrottle) return;
+            lastMoveTime = now;
+            
             const x = clientX - carousel.offsetLeft;
-            const walk = (x - startX) * 2;
+            const walk = (x - startX) * 1.5; // Reduced sensitivity for smoother feel
             carousel.scrollLeft -= walk;
+            startX = clientX - carousel.offsetLeft; // Update startX for next move
         };
 
-        carousel.addEventListener('mousemove', (e) => handleMove(e, e.pageX));
-        carousel.addEventListener('touchmove', (e) => handleMove(e, e.touches[0].pageX));
+        carousel.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                handleMove(e.pageX);
+            }
+        });
+        
+        carousel.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                handleMove(e.touches[0].pageX, true);
+            }
+        }, { passive: true });
 
+        // Optimized stop dragging
         const stopDragging = () => {
+            if (!isDragging) return;
+            
             isDragging = false;
+            isMouseDown = false;
             carousel.style.cursor = 'grab';
             
-            // Snap to nearest card
-            const cardWidth = getCardWidth();
+            // Snap to nearest card with optimized calculation
             const newIndex = Math.round(carousel.scrollLeft / cardWidth);
-            scrollToIndex(Math.max(0, Math.min(newIndex, totalItems - 1)));
+            const clampedIndex = Math.max(0, Math.min(newIndex, totalItems - 1));
+            
+            if (clampedIndex !== currentIndex) {
+                scrollToIndex(clampedIndex, true);
+            }
         };
 
-        carousel.addEventListener('mouseup', stopDragging);
-        carousel.addEventListener('mouseleave', stopDragging);
-        carousel.addEventListener('touchend', stopDragging);
+        // Use document level events for better performance
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('mouseleave', stopDragging);
+        carousel.addEventListener('touchend', stopDragging, { passive: true });
 
-        // Scroll event for manual scrolling
+        // Optimized scroll event with improved debouncing
         let scrollTimeout;
+        let isUserScrolling = false;
+        
         carousel.addEventListener('scroll', () => {
+            if (isDragging) return; // Skip during drag
+            
+            isUserScrolling = true;
             clearTimeout(scrollTimeout);
+            
             scrollTimeout = setTimeout(() => {
-                const cardWidth = getCardWidth();
+                if (!isUserScrolling || isDragging) return;
+                
                 const newIndex = Math.round(carousel.scrollLeft / cardWidth);
-                if (newIndex !== currentIndex) {
+                if (newIndex !== currentIndex && newIndex >= 0 && newIndex < totalItems) {
                     currentIndex = newIndex;
                     updateIndicators(currentIndex);
                 }
-            }, 150);
-        });
+                isUserScrolling = false;
+            }, 100); // Reduced timeout for responsiveness
+        }, { passive: true });
 
         // Keyboard navigation
         carousel.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                e.preventDefault();
                 scrollToIndex(currentIndex - 1);
             } else if (e.key === 'ArrowRight' && currentIndex < totalItems - 1) {
+                e.preventDefault();
                 scrollToIndex(currentIndex + 1);
             }
         });

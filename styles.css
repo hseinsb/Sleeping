@@ -750,6 +750,13 @@ body {
     }
 }
 
+/* Accordion-specific grid - always vertical layout */
+.cycle-windows-grid-accordion {
+    display: grid;
+    gap: var(--spacing-sm);
+    grid-template-columns: 1fr;
+}
+
 /* Modernized Window Cards */
 .window-card {
     background-color: var(--bg-primary);
@@ -1287,6 +1294,12 @@ body {
     scroll-behavior: smooth;
     cursor: grab;
     -webkit-overflow-scrolling: touch;
+    /* Performance optimizations */
+    will-change: scroll-position;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Improved touch scrolling */
+    overscroll-behavior-x: contain;
 }
 
 .cycles-carousel:active {
@@ -1306,7 +1319,11 @@ body {
     padding: var(--spacing-lg);
     border: 1px solid var(--separator);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transition: all var(--animation-quick);
+    transition: transform var(--animation-quick), box-shadow var(--animation-quick);
+    /* Performance optimizations */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 @media (min-width: 480px) {
