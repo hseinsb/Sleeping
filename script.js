@@ -1980,16 +1980,16 @@ class SleepCycleCalculator {
                 <head>
                     <title>Sleep Schedule</title>
                     <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        body { font-family: Arial, sans-serif; margin: 20px; background-color: #1C1C1E; color: #FFFFFF; }
                         .header { text-align: center; margin-bottom: 30px; }
                         .section { margin-bottom: 20px; }
-                        .best { color: #10b981; font-weight: bold; }
-                        .okay { color: #f59e0b; font-weight: bold; }
-                        .worst { color: #ef4444; font-weight: bold; }
+                        .best { color: #34C759; font-weight: bold; }
+                        .okay { color: #FF9500; font-weight: bold; }
+                        .worst { color: #FF3B30; font-weight: bold; }
                         .window { margin: 5px 0; padding: 8px; border-radius: 4px; }
-                        .window.best { background-color: #d1fae5; }
-                        .window.okay { background-color: #fef3c7; }
-                        .window.worst { background-color: #fee2e2; }
+                        .window.best { background-color: #1a2b1f; border: 1px solid #34C759; }
+                        .window.okay { background-color: #2b251a; border: 1px solid #FF9500; }
+                        .window.worst { background-color: #2b1a1a; border: 1px solid #FF3B30; }
                     </style>
                 </head>
                 <body>

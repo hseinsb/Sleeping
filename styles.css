@@ -2,13 +2,13 @@
 :root {
     --ios-system-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
     --ios-blue: #007AFF;
-    --ios-blue-soft: #E6F3FF;
+    --ios-blue-soft: #1a2332;
     --ios-green: #34C759;
-    --ios-green-soft: #E8F5E8;
+    --ios-green-soft: #1a2b1f;
     --ios-orange: #FF9500;
-    --ios-orange-soft: #FFF4E6;
+    --ios-orange-soft: #2b251a;
     --ios-red: #FF3B30;
-    --ios-red-soft: #FFE6E6;
+    --ios-red-soft: #2b1a1a;
     --ios-purple: #AF52DE;
     --ios-pink: #FF2D92;
     --ios-yellow: #FFCC00;
@@ -16,19 +16,19 @@
     --ios-teal: #30B0C7;
     --ios-cyan: #32D74B;
     
-    /* Light Mode Colors */
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F2F2F7;
-    --bg-tertiary: #FFFFFF;
-    --bg-grouped: #F2F2F7;
-    --text-primary: #000000;
-    --text-secondary: #3C3C43;
-    --text-tertiary: #3C3C4399;
-    --separator: #C6C6C8;
+    /* Dark Mode Colors - Default Theme */
+    --bg-primary: #1C1C1E;
+    --bg-secondary: #2C2C2E;
+    --bg-tertiary: #3A3A3C;
+    --bg-grouped: #000000;
+    --text-primary: #FFFFFF;
+    --text-secondary: #EBEBF5;
+    --text-tertiary: #EBEBF599;
+    --separator: #38383A;
     --fill-primary: #787880;
-    --fill-secondary: #78788026;
-    --fill-tertiary: #7878801F;
-    --fill-quaternary: #78788014;
+    --fill-secondary: #787880;
+    --fill-tertiary: #767680;
+    --fill-quaternary: #48484A;
     
     /* Touch Target Sizes */
     --touch-target-min: 44px;
@@ -217,7 +217,7 @@ body {
 
 .form-input-with-icon {
     padding-right: 40px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23EBEBF5" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>');
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
@@ -461,7 +461,7 @@ body {
 
 /* Time input specific styling */
 .form-input[type="time"] {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 6 0 6 4 2"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23EBEBF5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 6 0 6 4 2"/></svg>');
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
@@ -497,41 +497,21 @@ body {
 }
 
 .alert-card.warning {
-    --alert-bg: #FFF8E1;
-    --alert-border: #F57F17;
-    --alert-icon-color: #F57F17;
+    --alert-bg: #332D15;
+    --alert-border: #FF9500;
+    --alert-icon-color: #FF9500;
 }
 
 .alert-card.info {
-    --alert-bg: #E3F2FD;
-    --alert-border: #1976D2;
-    --alert-icon-color: #1976D2;
+    --alert-bg: #1A2332;
+    --alert-border: #007AFF;
+    --alert-icon-color: #007AFF;
 }
 
 .alert-card.success {
-    --alert-bg: #E8F5E8;
-    --alert-border: #2E7D32;
-    --alert-icon-color: #2E7D32;
-}
-
-@media (prefers-color-scheme: dark) {
-    .alert-card.warning {
-        --alert-bg: #332D15;
-        --alert-border: #8D6E63;
-        --alert-icon-color: #FFB74D;
-    }
-    
-    .alert-card.info {
-        --alert-bg: #1A2332;
-        --alert-border: #455A64;
-        --alert-icon-color: #64B5F6;
-    }
-    
-    .alert-card.success {
-        --alert-bg: #1B2A1B;
-        --alert-border: #388E3C;
-        --alert-icon-color: #81C784;
-    }
+    --alert-bg: #1B2A1B;
+    --alert-border: #34C759;
+    --alert-icon-color: #34C759;
 }
 
 .alert-icon {

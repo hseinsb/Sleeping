@@ -4,7 +4,7 @@
   "description": "Find the perfect wake-up times with cycle-based sleep science",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F2F2F7",
+  "background_color": "#000000",
   "theme_color": "#007AFF",
   "orientation": "portrait-primary",
   "categories": ["health", "fitness", "lifestyle"],
