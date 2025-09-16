@@ -2440,91 +2440,124 @@ class SleepCycleCalculator {
             }
             currentIndex = index;
             updateIndicators(index);
+            updateButtonStates();
         };
 
-        // Navigation button handlers
-        prevBtn.addEventListener('click', () => {
+        // Enhanced navigation button handlers
+        const handlePrevClick = () => {
             if (currentIndex > 0) {
+                // Add haptic feedback on mobile
+                if (isMobile && 'vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
                 scrollToIndex(currentIndex - 1);
             }
-        });
+        };
 
-        nextBtn.addEventListener('click', () => {
+        const handleNextClick = () => {
             if (currentIndex < totalItems - 1) {
+                // Add haptic feedback on mobile
+                if (isMobile && 'vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
                 scrollToIndex(currentIndex + 1);
             }
-        });
-
-        // Optimized touch/mouse drag functionality
-        let isMouseDown = false;
-        
-        const startDragging = (clientX) => {
-            isDragging = true;
-            isMouseDown = true;
-            startX = clientX - carousel.offsetLeft;
-            carousel.style.cursor = 'grabbing';
-        };
-        
-        carousel.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startDragging(e.pageX);
-        });
-
-        carousel.addEventListener('touchstart', (e) => {
-            startDragging(e.touches[0].pageX);
-        }, { passive: true });
-
-        // Optimized move handlers with throttling
-        let lastMoveTime = 0;
-        const moveThrottle = 16; // ~60fps
-        
-        const handleMove = (clientX, isTouch = false) => {
-            if (!isDragging || !isMouseDown) return;
-            
-            const now = Date.now();
-            if (now - lastMoveTime < moveThrottle) return;
-            lastMoveTime = now;
-            
-            const x = clientX - carousel.offsetLeft;
-            const walk = (x - startX) * 1.5; // Reduced sensitivity for smoother feel
-            carousel.scrollLeft -= walk;
-            startX = clientX - carousel.offsetLeft; // Update startX for next move
         };
 
-        carousel.addEventListener('mousemove', (e) => {
-            if (isDragging) {
+        prevBtn.addEventListener('click', handlePrevClick);
+        nextBtn.addEventListener('click', handleNextClick);
+        
+        // Update button states based on current position
+        const updateButtonStates = () => {
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex === totalItems - 1 ? '0.5' : '1';
+            prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            nextBtn.style.pointerEvents = currentIndex === totalItems - 1 ? 'none' : 'auto';
+        };
+        
+        // Initial button state
+        updateButtonStates();
+
+        // Check if device is mobile for different interaction modes
+        const isMobile = window.innerWidth <= 480;
+        
+        if (!isMobile) {
+            // Desktop/tablet: Enable drag functionality
+            let isMouseDown = false;
+            
+            const startDragging = (clientX) => {
+                isDragging = true;
+                isMouseDown = true;
+                startX = clientX - carousel.offsetLeft;
+                carousel.style.cursor = 'grabbing';
+            };
+            
+            carousel.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                handleMove(e.pageX);
-            }
-        });
-        
-        carousel.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                handleMove(e.touches[0].pageX, true);
-            }
-        }, { passive: true });
+                startDragging(e.pageX);
+            });
 
-        // Optimized stop dragging
-        const stopDragging = () => {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            isMouseDown = false;
-            carousel.style.cursor = 'grab';
-            
-            // Snap to nearest card with optimized calculation
-            const newIndex = Math.round(carousel.scrollLeft / cardWidth);
-            const clampedIndex = Math.max(0, Math.min(newIndex, totalItems - 1));
-            
-            if (clampedIndex !== currentIndex) {
-                scrollToIndex(clampedIndex, true);
-            }
-        };
+            carousel.addEventListener('touchstart', (e) => {
+                startDragging(e.touches[0].pageX);
+            }, { passive: true });
 
-        // Use document level events for better performance
-        document.addEventListener('mouseup', stopDragging);
-        document.addEventListener('mouseleave', stopDragging);
-        carousel.addEventListener('touchend', stopDragging, { passive: true });
+            // Optimized move handlers with throttling
+            let lastMoveTime = 0;
+            const moveThrottle = 16; // ~60fps
+            
+            const handleMove = (clientX, isTouch = false) => {
+                if (!isDragging || !isMouseDown) return;
+                
+                const now = Date.now();
+                if (now - lastMoveTime < moveThrottle) return;
+                lastMoveTime = now;
+                
+                const x = clientX - carousel.offsetLeft;
+                const walk = (x - startX) * 1.5; // Reduced sensitivity for smoother feel
+                carousel.scrollLeft -= walk;
+                startX = clientX - carousel.offsetLeft; // Update startX for next move
+            };
+
+            carousel.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    handleMove(e.pageX);
+                }
+            });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    handleMove(e.touches[0].pageX, true);
+                }
+            }, { passive: true });
+
+            // Optimized stop dragging
+            const stopDragging = () => {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                isMouseDown = false;
+                carousel.style.cursor = 'grab';
+                
+                // Snap to nearest card with optimized calculation
+                const newIndex = Math.round(carousel.scrollLeft / cardWidth);
+                const clampedIndex = Math.max(0, Math.min(newIndex, totalItems - 1));
+                
+                if (clampedIndex !== currentIndex) {
+                    scrollToIndex(clampedIndex, true);
+                }
+            };
+
+            // Use document level events for better performance
+            document.addEventListener('mouseup', stopDragging);
+            document.addEventListener('mouseleave', stopDragging);
+            carousel.addEventListener('touchend', stopDragging, { passive: true });
+        } else {
+            // Mobile: Disable drag, use button navigation only
+            carousel.style.cursor = 'default';
+            // Disable scroll snapping on mobile for smoother button navigation
+            carousel.style.scrollSnapType = 'none';
+        }
 
         // Optimized scroll event with improved debouncing
         let scrollTimeout;
@@ -2543,6 +2576,7 @@ class SleepCycleCalculator {
                 if (newIndex !== currentIndex && newIndex >= 0 && newIndex < totalItems) {
                     currentIndex = newIndex;
                     updateIndicators(currentIndex);
+                    updateButtonStates();
                 }
                 isUserScrolling = false;
             }, 100); // Reduced timeout for responsiveness

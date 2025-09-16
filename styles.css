@@ -1371,9 +1371,32 @@ body {
     right: -20px;
 }
 
+/* Enhanced mobile carousel navigation */
 @media (max-width: 480px) {
     .carousel-nav {
-        display: none;
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+        background-color: var(--bg-primary);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 2px solid var(--separator);
+        z-index: 20;
+        /* Better positioning for mobile */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .carousel-nav-prev {
+        left: 8px;
+    }
+    
+    .carousel-nav-next {
+        right: 8px;
+    }
+    
+    .carousel-nav:active {
+        transform: translateY(-50%) scale(0.95);
+        background-color: var(--fill-quaternary);
     }
 }
 
