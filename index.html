@@ -48,18 +48,18 @@
             
             <div class="form-group">
                 <div class="ios-radio-group">
-                    <div class="ios-radio-item">
-                        <input type="radio" name="fajrMode" value="none" checked>
-                        <label>No Fajr consideration</label>
-                    </div>
-                    <div class="ios-radio-item">
-                        <input type="radio" name="fajrMode" value="fixed">
-                        <label>Fixed Fajr time</label>
-                    </div>
-                    <div class="ios-radio-item">
-                        <input type="radio" name="fajrMode" value="window">
-                        <label>Fajr time window (optimize within range)</label>
-                    </div>
+                    <label class="ios-radio-item" for="fajrNone">
+                        <input type="radio" id="fajrNone" name="fajrMode" value="none" checked>
+                        <span>No Fajr consideration</span>
+                    </label>
+                    <label class="ios-radio-item" for="fajrFixed">
+                        <input type="radio" id="fajrFixed" name="fajrMode" value="fixed">
+                        <span>Fixed Fajr time</span>
+                    </label>
+                    <label class="ios-radio-item" for="fajrWindow">
+                        <input type="radio" id="fajrWindow" name="fajrMode" value="window">
+                        <span>Fajr time window (optimize within range)</span>
+                    </label>
                 </div>
             </div>
 

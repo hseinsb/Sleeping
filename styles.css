@@ -439,7 +439,7 @@ body {
     accent-color: var(--ios-blue);
 }
 
-.ios-radio-item label {
+.ios-radio-item span {
     font-size: var(--font-size-body);
     color: var(--text-primary);
     cursor: pointer;
