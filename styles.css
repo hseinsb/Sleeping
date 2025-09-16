@@ -1317,9 +1317,45 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Carousel Navigation - Hidden since swipe works perfectly */
+/* Carousel Navigation - Desktop only */
 .carousel-nav {
-    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--separator);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: none; /* Hidden on mobile by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all var(--animation-quick);
+    z-index: 10;
+}
+
+.carousel-nav:hover {
+    background-color: var(--fill-quaternary);
+    color: var(--text-primary);
+}
+
+.carousel-nav-prev {
+    left: -20px;
+}
+
+.carousel-nav-next {
+    right: -20px;
+}
+
+/* Show arrows on desktop/tablet only (not on mobile or iOS app) */
+@media (min-width: 768px) {
+    .carousel-nav {
+        display: flex;
+    }
 }
 
 .cycle-card-header {

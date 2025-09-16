@@ -2310,7 +2310,17 @@ class SleepCycleCalculator {
         const carousel = document.createElement('div');
         carousel.className = 'cycles-carousel';
 
-        // No navigation arrows needed - swipe works perfectly
+        // Add navigation arrows for desktop users
+        const prevBtn = document.createElement('div');
+        prevBtn.className = 'carousel-nav carousel-nav-prev';
+        prevBtn.innerHTML = '‹';
+        
+        const nextBtn = document.createElement('div');
+        nextBtn.className = 'carousel-nav carousel-nav-next';
+        nextBtn.innerHTML = '›';
+
+        carouselContainer.appendChild(prevBtn);
+        carouselContainer.appendChild(nextBtn);
 
         Object.keys(cycleGroups).forEach(cycleNum => {
             const cycleCard = document.createElement('div');
@@ -2350,7 +2360,7 @@ class SleepCycleCalculator {
         timelineDiv.appendChild(carouselContainer);
 
         // Enhanced carousel functionality
-        this.setupCarouselNavigation(carousel, indicators, Object.keys(cycleGroups).length);
+        this.setupCarouselNavigation(carousel, indicators, prevBtn, nextBtn, Object.keys(cycleGroups).length);
     }
 
     createModernWindowCard(window) {
@@ -2388,7 +2398,7 @@ class SleepCycleCalculator {
 
 
 
-    setupCarouselNavigation(carousel, indicators, totalItems) {
+    setupCarouselNavigation(carousel, indicators, prevBtn, nextBtn, totalItems) {
         let currentIndex = 0;
         let startX = 0;
         let isDragging = false;
@@ -2431,9 +2441,35 @@ class SleepCycleCalculator {
             }
             currentIndex = index;
             updateIndicators(index);
+            updateButtonStates();
         };
 
-        // No button handlers needed - swipe navigation works perfectly
+        // Desktop navigation button handlers
+        const handlePrevClick = () => {
+            if (currentIndex > 0) {
+                scrollToIndex(currentIndex - 1);
+            }
+        };
+
+        const handleNextClick = () => {
+            if (currentIndex < totalItems - 1) {
+                scrollToIndex(currentIndex + 1);
+            }
+        };
+
+        prevBtn.addEventListener('click', handlePrevClick);
+        nextBtn.addEventListener('click', handleNextClick);
+        
+        // Update button states based on current position
+        const updateButtonStates = () => {
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex === totalItems - 1 ? '0.5' : '1';
+            prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            nextBtn.style.pointerEvents = currentIndex === totalItems - 1 ? 'none' : 'auto';
+        };
+        
+        // Initial button state
+        updateButtonStates();
 
         // Check if device is mobile for different interaction modes
         const isMobile = window.innerWidth <= 480;
@@ -2533,6 +2569,7 @@ class SleepCycleCalculator {
                 if (newIndex !== currentIndex && newIndex >= 0 && newIndex < totalItems) {
                     currentIndex = newIndex;
                     updateIndicators(currentIndex);
+                    updateButtonStates();
                 }
                 isUserScrolling = false;
             }, 100); // Reduced timeout for responsiveness
