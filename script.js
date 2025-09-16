@@ -531,13 +531,14 @@ class SleepCycleCalculator {
             });
         });
 
-        // Calculate total sleep time from first viable option
+        // Calculate total sleep time from bedtime to work (not Fajr)
         const allPairings = [...pairings.best, ...pairings.okay, ...pairings.bad];
         if (allPairings.length > 0) {
             const earliestViable = allPairings
                 .filter(p => p.viable)
                 .sort((a, b) => a.sleepDuration - b.sleepDuration)[0];
-            pairings.totalSleepTime = earliestViable ? earliestViable.sleepDuration : 0;
+            // Total sleep should be from bedtime to work time, not bedtime to Fajr
+            pairings.totalSleepTime = earliestViable ? (workTime - bedtime) / (1000 * 60 * 60) : 0;
         }
 
         // Sort each category by sleep duration (more sleep is better)
